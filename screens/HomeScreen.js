@@ -3,6 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase'; // adjust path if needed
 
+const adminEmails = ['vishalmurugavel105@gmail.com', 'principal@example.com'];
+const isAdmin = auth.currentUser?.email && adminEmails.includes(auth.currentUser.email);
+
+
 const HomeScreen = ({ navigation }) => {
   const handleLogout = () => {
     signOut(auth)
@@ -20,7 +24,21 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('LeaveRequest')}
           >
             <Text style={{ color: 'white', fontWeight: 'bold' }}>Request Leave</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={{ marginTop: 10, backgroundColor: '#2196F3', padding: 10, borderRadius: 10 }}
+        onPress={() => navigation.navigate('LeaveHistory')}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>View My Leave History</Text>
+      </TouchableOpacity>
+      {isAdmin && (
+      <TouchableOpacity
+            style={{ marginTop: 10, backgroundColor: '#673AB7', padding: 10, borderRadius: 10 }}
+            onPress={() => navigation.navigate('AdminPanel')}
+          >
+            <Text style={{ color: 'white', fontWeight: 'bold' }}>Admin Panel</Text>
           </TouchableOpacity>
+        )}
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutText}>Logout</Text>

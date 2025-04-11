@@ -1,76 +1,75 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, TextInput, Button, Alert, StyleSheet, Text } from 'react-native';
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
-const LeaveRequestScreen = ({ navigation }) => {
+export default function LeaveRequestScreen({ navigation }) {
   const [leaveType, setLeaveType] = useState('');
   const [reason, setReason] = useState('');
-  const [date, setDate] = useState('');
 
   const handleSubmit = async () => {
-    if (!leaveType || !reason || !date) {
-      Alert.alert('Error', 'Please fill all fields');
-      return;
-    }
-
     try {
+      const user = auth.currentUser;
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+      if (!userDoc.exists()) {
+        Alert.alert('User data not found');
+        return;
+      }
+
+      const userData = userDoc.data();
+
       await addDoc(collection(db, 'leaveRequests'), {
-        userId: auth.currentUser.uid,
+        userEmail: user.email,
+        name: userData.name,
+        department: userData.department,
+        year: userData.year,
         leaveType,
         reason,
-        date,
         status: 'Pending',
-        createdAt: Timestamp.now(),
+        createdAt: new Date(),
       });
-      Alert.alert('Success', 'Leave request submitted');
+
+      Alert.alert('Leave request submitted!');
       setLeaveType('');
       setReason('');
-      setDate('');
-      navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Error', error.message);
+      console.error('Leave request failed:', error);
+      Alert.alert('Error submitting leave request.');
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Leave Request</Text>
-
+      <Text style={styles.label}>Leave Type</Text>
       <TextInput
-        placeholder="Leave Type (e.g. Sick)"
         style={styles.input}
+        placeholder="e.g. Sick Leave"
         value={leaveType}
         onChangeText={setLeaveType}
       />
+
+      <Text style={styles.label}>Reason</Text>
       <TextInput
-        placeholder="Reason"
         style={styles.input}
+        placeholder="Reason for leave"
         value={reason}
         onChangeText={setReason}
-      />
-      <TextInput
-        placeholder="Date (e.g. 2025-04-10)"
-        style={styles.input}
-        value={date}
-        onChangeText={setDate}
       />
 
       <Button title="Submit Request" onPress={handleSubmit} />
     </View>
   );
-};
-
-export default LeaveRequestScreen;
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  container: { padding: 20 },
+  label: { fontWeight: 'bold', marginTop: 15 },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 8
-  }
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 5,
+  },
 });

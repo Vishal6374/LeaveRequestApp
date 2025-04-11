@@ -4,7 +4,8 @@ import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
 import HomeScreen from "../screens/HomeScreen";
 import LeaveRequestScreen from "../screens/LeaveRequestScreen";
-
+import AdminPanelScreen from "../screens/AdminPanelScreen";
+import LeaveHistoryScreen from "../screens/LeaveHistoryScreen";
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
@@ -14,6 +15,8 @@ export default function AppNavigator() {
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="LeaveRequest" component={LeaveRequestScreen} />
+      <Stack.Screen name="LeaveHistory" component={LeaveHistoryScreen} />
+      <Stack.Screen name="AdminPanel" component={AdminPanelScreen} />
 
     </Stack.Navigator>
   );

@@ -3,6 +3,11 @@
 # dependencies
 node_modules/
 
+
+.env
+*.log
+android/.gradle
+web-build/
 # Expo
 .expo/
 dist/
