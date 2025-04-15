@@ -1,74 +1,96 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { auth, db } from '../firebase'; // Make sure path is correct
 import { signOut } from 'firebase/auth';
-import { auth } from '../firebase'; // adjust path if needed
-
-const adminEmails = ['vishalmurugavel105@gmail.com', 'principal@example.com'];
-const isAdmin = auth.currentUser?.email && adminEmails.includes(auth.currentUser.email);
-
+import { doc, getDoc } from 'firebase/firestore';
 
 const HomeScreen = ({ navigation }) => {
-  const handleLogout = () => {
-    signOut(auth)
-      .then(() => {
-        navigation.replace('Login'); // 👈 send user back to Login
-      })
-      .catch((error) => alert(error.message));
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setUserName(userData.name || "User");
+
+          if (userData.role === 'admin') {
+            setIsAdmin(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigation.replace("Login");
+    } catch (error) {
+      Alert.alert("Logout Error", error.message);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Welcome to Home Screen!</Text>
-      <TouchableOpacity
-            style={{ marginTop: 20, backgroundColor: '#4CAF50', padding: 10, borderRadius: 10 }}
-            onPress={() => navigation.navigate('LeaveRequest')}
-          >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Request Leave</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={{ marginTop: 10, backgroundColor: '#2196F3', padding: 10, borderRadius: 10 }}
-        onPress={() => navigation.navigate('LeaveHistory')}
-      >
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>View My Leave History</Text>
-      </TouchableOpacity>
-      {isAdmin && (
-      <TouchableOpacity
-            style={{ marginTop: 10, backgroundColor: '#673AB7', padding: 10, borderRadius: 10 }}
-            onPress={() => navigation.navigate('AdminPanel')}
-          >
-            <Text style={{ color: 'white', fontWeight: 'bold' }}>Admin Panel</Text>
-          </TouchableOpacity>
-        )}
+      <Text style={styles.title}>Welcome, {userName}!</Text>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      {isAdmin && (
+        <Button
+          title="Go to Admin Panel"
+          onPress={() => navigation.navigate("AdminPanel")}
+        />
+      )}
+
+      <View style={styles.space} />
+
+      <Button
+        title="Request Leave"
+        onPress={() => navigation.navigate("LeaveRequest")}
+      />
+
+      <View style={styles.space} />
+
+      <Button
+        title="Leave History"
+        onPress={() => navigation.navigate("LeaveHistory")}
+      />
+
+      <View style={styles.space} />
+
+      <Button
+        title="Logout"
+        onPress={handleLogout}
+        color="red"
+      />
     </View>
   );
 };
-
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    padding: 20,
+    backgroundColor: '#fff',
   },
-  text: {
+  title: {
     fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30
+    marginBottom: 30,
+    textAlign: 'center',
   },
-  logoutButton: {
-    backgroundColor: '#FF3B30',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10
+  space: {
+    height: 20,
   },
-  logoutText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 16
-  }
 });
+
+export default HomeScreen;

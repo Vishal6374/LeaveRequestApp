@@ -37,7 +37,9 @@ const AdminPanelScreen = () => {
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text>Name: {item.userEmail}</Text>
+            <Text>Name: {item.name}</Text>
+            <Text>Roll no:{item.rollno}</Text>
+            <Text>Class:{item.year} - {item.department}</Text>
             <Text>Type: {item.leaveType}</Text>
             <Text>Reason: {item.reason}</Text>
             <Text>Status: {item.status}</Text>

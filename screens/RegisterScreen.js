@@ -10,6 +10,7 @@ export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState('');
   const [department, setDepartment] = useState('');
   const [year, setYear] = useState('');
+  const [rollno, setRollno] = useState('');
 
   const handleRegister = async () => {
     try {
@@ -20,6 +21,8 @@ export default function RegisterScreen({ navigation }) {
         name,
         department,
         year,
+        rollno,
+        role:"student",
         email: user.email,
       });
 
@@ -36,14 +39,16 @@ export default function RegisterScreen({ navigation }) {
       <TextInput placeholder="Name" style={styles.input} value={name} onChangeText={setName} />
       <TextInput placeholder="Department" style={styles.input} value={department} onChangeText={setDepartment} />
       <TextInput placeholder="Year" style={styles.input} value={year} onChangeText={setYear} />
+      <TextInput placeholder="Roll no" style={styles.input} value={rollno} onChangeText={setRollno} secureTextEntry />
       <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} autoCapitalize="none" />
       <TextInput placeholder="Password" style={styles.input} value={password} onChangeText={setPassword} secureTextEntry />
+  
 
       <Button title="Register" onPress={handleRegister} />
 
       <TouchableOpacity onPress={() => navigation.navigate('Login')}>
         <Text style={styles.link}>Already have an account? Login</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> 
     </View>
   );
 }
